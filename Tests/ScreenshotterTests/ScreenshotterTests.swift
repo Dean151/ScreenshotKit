@@ -19,9 +19,26 @@ final class ScreenshotterTests: XCTestCase {
         }
         .withSystemDecoration()
 
-        generateScreenshots(for: view, named: "test", types: [
-            .iPhone: .portrait,
-            .iPad: .all,
-        ], prefix: "screenshotter-tests")
+        generateScreenshots(for: view, named: "device", type: .devices([
+            .iPhone(orientations: .portrait),
+            .iPad(orientations: .all)
+        ]), prefix: "tests")
+    }
+
+    func testFixedSize() {
+        let view = Button(action: {}, label: {
+            Text("Button")
+        }).buttonStyle(.borderedProminent)
+
+        generateScreenshots(for: view, named: "fixed", type: .fixed(width: 200, height: 66), prefix: "tests")
+    }
+
+    func testSizeThatFit() {
+        let view = Button(action: {}, label: {
+            Text("Button")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }).frame(width: 200, height: 66).buttonStyle(.borderedProminent)
+
+        generateScreenshots(for: view, named: "fit", type: .sizeThatFits, prefix: "tests")
     }
 }

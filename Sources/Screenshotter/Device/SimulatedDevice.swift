@@ -6,9 +6,53 @@ import SwiftUI
 
 import SnapshotTesting
 
+// MARK: - Public Interface
+
+public enum ScreenshotType {
+    case sizeThatFits
+    case fixed(width: Double, height: Double)
+    case device(_ device: SimulatedDeviceType)
+    case devices(_ devices: [SimulatedDeviceType])
+}
+
 public enum SimulatedDeviceType {
-    case iPhone
-    case iPad
+    case iPhone(orientations: SimulatedDeviceOrientations)
+    case iPad(orientations: SimulatedDeviceOrientations)
+}
+
+// MARK: Internal interface
+
+extension ScreenshotType {
+    func each(_ callback: (SwiftUISnapshotLayout, SimulatedDevice) throws -> Void) rethrows {
+        switch self {
+        case .sizeThatFits:
+            try callback(.sizeThatFits, .iPhone14Pro(.portrait))
+        case .fixed(let width, let height):
+            try callback(.fixed(width: width, height: height), .iPhone14Pro(.portrait))
+        case .device(let device):
+            try ScreenshotType.devices([device]).each(callback)
+        case .devices(let devices):
+            for deviceType in devices {
+                for device in SimulatedDevice.matching(type: deviceType) {
+                    try callback(.device(config: device.config), device)
+                }
+            }
+        }
+    }
+}
+
+enum ScreenshotColorScheme: String, CaseIterable {
+    case light
+    case dark
+
+    var userInterfaceStyle: UIUserInterfaceStyle {
+        switch self {
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        }
+    }
 }
 
 struct SimulatedDeviceEnvironmentKey: EnvironmentKey {
@@ -95,15 +139,6 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
         }
     }
 
-    var type: SimulatedDeviceType {
-        switch self {
-        case .iPhone8, .iPhone8Plus, .iPhone14, .iPhone14Plus, .iPhone14Pro, .iPhone14ProMax:
-            return .iPhone
-        case .iPadPro12_9HomeButton, .iPadPro12_9, .iPadPro11:
-            return .iPad
-        }
-    }
-
     var config: ViewImageConfig {
         switch self {
         case .iPhone8(let orientation):
@@ -124,6 +159,15 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
             return .iPadPro12_9Borderless(orientation.configOrientation)
         case .iPadPro11(let orientation):
             return .iPadPro11(orientation.configOrientation)
+        }
+    }
+
+    var scale: Double {
+        switch self {
+        case .iPhone8, .iPadPro12_9HomeButton, .iPadPro12_9, .iPadPro11:
+            return 2
+        case.iPhone8Plus, .iPhone14, .iPhone14Plus, .iPhone14Pro, .iPhone14ProMax:
+            return 3
         }
     }
 
@@ -211,32 +255,23 @@ extension SimulatedDevice: CaseIterable {
         ]
     }
 
-    static func matching(type: SimulatedDeviceType, orientation: SimulatedDeviceOrientation? = nil, screenScale: CGFloat) -> [SimulatedDevice] {
+    static func matching(type: SimulatedDeviceType) -> [SimulatedDevice] {
         switch type {
-        case .iPhone:
-            switch screenScale {
-            case 2:
-                return [.iPhone8(orientation ?? .portrait)]
-            case 3:
-                return [
-                    .iPhone8Plus(orientation ?? .portrait),
-                    .iPhone14(orientation ?? .portrait),
-                    .iPhone14Plus(orientation ?? .portrait),
-                    .iPhone14Pro(orientation ?? .portrait),
-                    .iPhone14ProMax(orientation ?? .portrait)
-                ]
-            default:
-                return []
-            }
-        case .iPad:
-            guard screenScale == 2 else {
-                return []
-            }
-            return [
-                .iPadPro12_9(orientation ?? .landscape),
-                .iPadPro12_9HomeButton(orientation ?? .landscape),
-                .iPadPro11(orientation ?? .landscape)
-            ]
+        case .iPhone(let orientations):
+            return orientations.each.flatMap { [
+                .iPhone8($0),
+                .iPhone8Plus($0),
+                .iPhone14($0),
+                .iPhone14Plus($0),
+                .iPhone14Pro($0),
+                .iPhone14ProMax($0)
+            ] }
+        case .iPad(let orientations):
+            return orientations.each.flatMap { [
+                .iPadPro12_9($0),
+                .iPadPro12_9HomeButton($0),
+                .iPadPro11($0)
+            ] }
         }
     }
 }
