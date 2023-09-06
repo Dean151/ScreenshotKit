@@ -14,7 +14,8 @@ extension XCTestCase {
     public func generateScreenshots<Value: SwiftUI.View>(
         for value: @autoclosure () throws -> Value,
         named name: String,
-        type: ScreenshotType = .device(.iPhone(orientations: .portrait)),
+        type: ScreenshotType,
+        colorScheme: ScreenshotColorSchemes = .light,
         prefix: String,
         timeout: TimeInterval = 5,
         file: StaticString = #file,
@@ -23,7 +24,7 @@ extension XCTestCase {
         XCTExpectFailure()
         let keyWindow = UIApplication.sharedIfAvailable?.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.windows.first { $0.isKeyWindow } }).first
         try type.each { layout, device in
-            for colorScheme in ScreenshotColorScheme.allCases {
+            for colorScheme in colorScheme.each {
                 let descriptor: String
                 switch layout {
                 case .device:

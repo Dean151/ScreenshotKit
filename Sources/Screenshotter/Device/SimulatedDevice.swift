@@ -6,37 +6,15 @@ import SwiftUI
 
 import SnapshotTesting
 
-// MARK: - Public Interface
+enum SimulatedDeviceOrientation {
+    case portrait, landscape
 
-public enum ScreenshotType {
-    case sizeThatFits
-    case fixed(width: Double, height: Double)
-    case device(_ device: SimulatedDeviceType)
-    case devices(_ devices: [SimulatedDeviceType])
-}
-
-public enum SimulatedDeviceType {
-    case iPhone(orientations: SimulatedDeviceOrientations)
-    case iPad(orientations: SimulatedDeviceOrientations)
-}
-
-// MARK: Internal interface
-
-extension ScreenshotType {
-    func each(_ callback: (SwiftUISnapshotLayout, SimulatedDevice) throws -> Void) rethrows {
+    var configOrientation: ViewImageConfig.Orientation {
         switch self {
-        case .sizeThatFits:
-            try callback(.sizeThatFits, .iPhone14Pro(.portrait))
-        case .fixed(let width, let height):
-            try callback(.fixed(width: width, height: height), .iPhone14Pro(.portrait))
-        case .device(let device):
-            try ScreenshotType.devices([device]).each(callback)
-        case .devices(let devices):
-            for deviceType in devices {
-                for device in SimulatedDevice.matching(type: deviceType) {
-                    try callback(.device(config: device.config), device)
-                }
-            }
+        case .portrait:
+            return .portrait
+        case .landscape:
+            return .landscape
         }
     }
 }
@@ -65,42 +43,6 @@ extension EnvironmentValues {
         }
         set {
             self[SimulatedDeviceEnvironmentKey.self] = newValue
-        }
-    }
-}
-
-public struct SimulatedDeviceOrientations: OptionSet {
-    public let rawValue: UInt
-
-    public static let portrait = SimulatedDeviceOrientations(rawValue: 1 << 0)
-    public static let landscape = SimulatedDeviceOrientations(rawValue: 1 << 1)
-    public static let all: SimulatedDeviceOrientations = [.portrait, .landscape]
-
-    var each: [SimulatedDeviceOrientation] {
-        var orientations: [SimulatedDeviceOrientation] = []
-        if contains(.portrait) {
-            orientations.append(.portrait)
-        }
-        if contains(.landscape) {
-            orientations.append(.landscape)
-        }
-        return orientations
-    }
-
-    public init(rawValue: UInt) {
-        self.rawValue = rawValue
-    }
-}
-
-enum SimulatedDeviceOrientation {
-    case portrait, landscape
-
-    var configOrientation: ViewImageConfig.Orientation {
-        switch self {
-        case .portrait:
-            return .portrait
-        case .landscape:
-            return .landscape
         }
     }
 }
@@ -233,26 +175,19 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
 
 extension SimulatedDevice: CaseIterable {
     static var allCases: [SimulatedDevice] {
-        return [
-            .iPhone8(.portrait),
-            .iPhone8(.landscape),
-            .iPhone8Plus(.portrait),
-            .iPhone8Plus(.landscape),
-            .iPhone14(.portrait),
-            .iPhone14(.landscape),
-            .iPhone14Plus(.portrait),
-            .iPhone14Plus(.landscape),
-            .iPhone14Pro(.portrait),
-            .iPhone14Pro(.landscape),
-            .iPhone14ProMax(.portrait),
-            .iPhone14ProMax(.landscape),
-            .iPadPro12_9(.landscape),
-            .iPadPro12_9(.portrait),
-            .iPadPro12_9HomeButton(.landscape),
-            .iPadPro12_9HomeButton(.portrait),
-            .iPadPro11(.landscape),
-            .iPadPro11(.portrait)
-        ]
+        return SimulatedDeviceOrientations.all.each.flatMap({
+            [
+                .iPhone8($0),
+                .iPhone8Plus($0),
+                .iPhone14($0),
+                .iPhone14Plus($0),
+                .iPhone14Pro($0),
+                .iPhone14ProMax($0),
+                .iPadPro12_9($0),
+                .iPadPro12_9HomeButton($0),
+                .iPadPro11($0),
+            ]
+        })
     }
 
     static func matching(type: SimulatedDeviceType) -> [SimulatedDevice] {
@@ -273,5 +208,52 @@ extension SimulatedDevice: CaseIterable {
                 .iPadPro11($0)
             ] }
         }
+    }
+}
+
+// MARK: Enumerators
+
+extension ScreenshotType {
+    func each(_ callback: (SwiftUISnapshotLayout, SimulatedDevice) throws -> Void) rethrows {
+        switch self {
+        case .sizeThatFits:
+            try callback(.sizeThatFits, .iPhone14Pro(.portrait))
+        case .fixed(let width, let height):
+            try callback(.fixed(width: width, height: height), .iPhone14Pro(.portrait))
+        case .device(let device):
+            try ScreenshotType.devices([device]).each(callback)
+        case .devices(let devices):
+            for deviceType in devices {
+                for device in SimulatedDevice.matching(type: deviceType) {
+                    try callback(.device(config: device.config), device)
+                }
+            }
+        }
+    }
+}
+
+extension SimulatedDeviceOrientations {
+    var each: [SimulatedDeviceOrientation] {
+        var orientations: [SimulatedDeviceOrientation] = []
+        if contains(.portrait) {
+            orientations.append(.portrait)
+        }
+        if contains(.landscape) {
+            orientations.append(.landscape)
+        }
+        return orientations
+    }
+}
+
+extension ScreenshotColorSchemes {
+    var each: [ScreenshotColorScheme] {
+        var schemes: [ScreenshotColorScheme] = []
+        if contains(.light) {
+            schemes.append(.light)
+        }
+        if contains(.dark) {
+            schemes.append(.dark)
+        }
+        return schemes
     }
 }
