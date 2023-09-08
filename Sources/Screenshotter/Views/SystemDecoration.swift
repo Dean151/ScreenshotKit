@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 16.0, *)
 public struct WithSystemDecorationModifier: ViewModifier {
     @Environment(\.device)
     private var device
@@ -39,7 +38,6 @@ public struct WithSystemDecorationModifier: ViewModifier {
 }
 
 extension View {
-    @available(iOS 16.0, *)
     public func withSystemDecoration(
         homeIndicator: HomeIndicatorColorScheme = .inherit,
         statusBar: StatusBarColorScheme = .inherit

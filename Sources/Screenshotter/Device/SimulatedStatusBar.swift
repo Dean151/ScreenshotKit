@@ -47,7 +47,6 @@ public enum StatusBarColorScheme {
     }
 }
 
-@available(iOS 16.0, *)
 struct SimulatedStatusBar: View {
     let device: SimulatedDevice
     let scheme: StatusBarColorScheme
@@ -70,7 +69,6 @@ struct SimulatedStatusBar: View {
     }
 }
 
-@available(iOS 16.0, *)
 struct SimulatedNotchlessStatusBar: View {
     let statusBar: StatusBar
 
@@ -102,7 +100,6 @@ struct SimulatedNotchlessStatusBar: View {
     }
 }
 
-@available(iOS 16.0, *)
 struct SimulatedNotchStatusBar: View {
     let statusBar: StatusBar
 
@@ -136,7 +133,6 @@ struct SimulatedNotchStatusBar: View {
     }
 }
 
-@available(iOS 16.0, *)
 struct SimulatediPadStatusBar: View {
     let statusBar: StatusBar
 
