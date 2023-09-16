@@ -9,3 +9,5 @@ DerivedData/
 .netrc
 
 **/__Snapshots__
+
+Package.resolved
