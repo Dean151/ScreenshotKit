@@ -5,7 +5,7 @@
 import SwiftUI
 import XCTest
 
-import Screenshotter
+import ScreenshotKit
 
 final class ScreenshotterTests: XCTestCase {
     func testScreens() {

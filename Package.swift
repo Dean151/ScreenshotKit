@@ -3,18 +3,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-screenshotter",
+    name: "ScreenshotKit",
     platforms: [.iOS(.v16)],
     products: [
-        .library(name: "Screenshotter", targets: ["Screenshotter"]),
+        .library(name: "ScreenshotKit", targets: ["ScreenshotKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
     ],
     targets: [
-        .target(name: "Screenshotter", dependencies: [
+        .target(name: "ScreenshotKit", dependencies: [
             .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
         ]),
-        .testTarget(name: "ScreenshotterTests", dependencies: ["Screenshotter"]),
+        .testTarget(name: "ScreenshotKitTests", dependencies: ["ScreenshotKit"]),
     ]
 )
