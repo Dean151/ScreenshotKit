@@ -165,6 +165,21 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
         }
     }
 
+    var iMessageHeight: Double {
+        switch self {
+        case .iPhone8:
+            return 201
+        case .iPhone8Plus:
+            return 221
+        case .iPhone14, .iPhone14Pro:
+            return 239
+        case .iPhone14Plus, .iPhone14ProMax:
+            return 252
+        default:
+            fatalError("iPad is not (yet?) supported")
+        }
+    }
+
     init?() {
         guard let device = SimulatedDevice.allCases.first(where: { $0.config.size == UIScreen.main.bounds.size }) else {
             return nil
