@@ -79,6 +79,7 @@ struct iMessageAppModifier: ViewModifier {
                 }
             }
         }
+        .tint(.blue)
         .withSystemDecoration()
     }
 }
