@@ -38,7 +38,7 @@ struct iMessageAppModifier: ViewModifier {
     let content: [iMessageElement]
 
     func body(content: Content) -> some View {
-        NavigationStack {
+        ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 MessageScrollView(content: self.content)
 
@@ -63,28 +63,41 @@ struct iMessageAppModifier: ViewModifier {
                 }
                 .frame(height: device?.iMessageHeight ?? 200)
             }
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    MessageHeader(recipient: recipient)
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {} label: {
-                        Image(systemName: "chevron.backward")
-                            .imageScale(.large)
-                            .font(.body.weight(.bold))
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {} label: {
-                        Image(systemName: "video")
-                            .imageScale(.large)
-                    }
-                }
-            }
+
+            MessageNavigationBar(recipient: recipient)
         }
         .tint(.blue)
         .withSystemDecoration()
+    }
+}
+
+struct MessageNavigationBar: View {
+    @Environment(\.device)
+    private var device
+
+    let recipient: iMessageRecipient
+
+    var body: some View {
+        ZStack {
+            HStack {
+                Image(systemName: "chevron.backward")
+                    .imageScale(.large)
+                    .font(.system(.title3,  design: .rounded, weight: .semibold))
+                    .foregroundStyle(.blue)
+                Spacer()
+                Image(systemName: "video")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.blue)
+            }
+            .padding(.leading, 15)
+            .padding(.trailing, 22)
+            .padding(.bottom, device?.homeIndicator != nil ? 22 : 0)
+
+            MessageHeader(recipient: recipient)
+                .padding(.bottom, 4)
+        }
+        .frame(height: 75)
+        .background(.regularMaterial, ignoresSafeAreaEdges: .all)
     }
 }
 
@@ -92,7 +105,7 @@ struct MessageHeader: View {
     let recipient: iMessageRecipient
 
     var body: some View {
-        VStack {
+        VStack(spacing: 5) {
             Group {
                 switch recipient.picture {
                 case .initials(let string):
@@ -123,7 +136,6 @@ struct MessageHeader: View {
             }
             .font(.caption2)
         }
-        .padding(.bottom, -29)
     }
 }
 
