@@ -33,7 +33,7 @@ public enum iMessageScroll {
 
 extension View {
     @available(iOS 17, *)
-    public func iMessageApp(recipient: iMessageRecipient, conversation: [iMessageElement], scroll: iMessageScroll) -> some View {
+    public func iMessageApp(recipient: iMessageRecipient, conversation: [iMessageElement], scroll: iMessageScroll = .bottom) -> some View {
         modifier(iMessageAppModifier(recipient: recipient, conversation: conversation, scroll: scroll))
     }
 }
@@ -153,7 +153,11 @@ struct MessageHeader: View {
     }
 }
 
+@available(iOS 17, *)
 struct MessageComposer: View {
+    @Environment(\.colorScheme)
+    private var colorScheme
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "plus")
@@ -178,62 +182,61 @@ struct MessageComposer: View {
         }
         .padding(.leading, 13)
         .padding(.trailing, 16)
-        .padding(.top, 14)
+        .padding(.top, 4)
         .padding(.bottom, 10)
+        .background(colorScheme == .dark ? .black : .white)
+        .padding(.top, 10)
     }
 }
 
 struct MessageScrollView: View {
-
     let content: [iMessageElement]
     let scroll: iMessageScroll
 
     var body: some View {
-        VStack(spacing: 0) {
-            GeometryReader { proxy in
-                ScrollView {
-                    ForEach(scroll == .bottom ? content.reversed() : content, id: \.self) { element in
-                        Group {
-                            switch element {
-                            case .date(let date):
-                                Text(date)
+        GeometryReader { proxy in
+            VStack {
+                ForEach(content, id: \.self) { element in
+                    Group {
+                        switch element {
+                        case .date(let date):
+                            Text(date)
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.secondary)
+                                .padding(.top, 8)
+                        case .indicator(let indicator):
+                            HStack {
+                                Spacer()
+                                Text(indicator)
                                     .font(.caption2.weight(.medium))
                                     .foregroundStyle(.secondary)
-                                    .padding(.top, 8)
-                            case .indicator(let indicator):
+                            }
+                        case .receivedMessage(let content):
+                            HStack {
                                 HStack {
-                                    Spacer()
-                                    Text(indicator)
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.secondary)
+                                    MessageView(content: content, style: .received)
+                                    Spacer(minLength: 0)
                                 }
-                            case .receivedMessage(let content):
+                                .frame(maxWidth: proxy.size.width * 0.8)
+                                Spacer()
+                            }
+                        case .sentMessage(let content):
+                            HStack {
+                                Spacer()
                                 HStack {
-                                    HStack {
-                                        MessageView(content: content, style: .received)
-                                        Spacer(minLength: 0)
-                                    }
-                                    .frame(maxWidth: proxy.size.width * 0.8)
-                                    Spacer()
+                                    Spacer(minLength: 0)
+                                    MessageView(content: content, style: .sent)
                                 }
-                            case .sentMessage(let content):
-                                HStack {
-                                    Spacer()
-                                    HStack {
-                                        Spacer(minLength: 0)
-                                        MessageView(content: content, style: .sent)
-                                    }
-                                    .frame(maxWidth: proxy.size.width * 0.8)
-                                }
+                                .frame(maxWidth: proxy.size.width * 0.8)
                             }
                         }
-                        .scaleEffect(x: 1, y: scroll == .bottom ? -1 : 1)
                     }
                 }
-                .scaleEffect(x: 1, y: scroll == .bottom ? -1 : 1)
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 16)
+            .frame(height: proxy.size.height, alignment: scroll == .top ?  .top : .bottom)
         }
+        .padding(.horizontal, 16)
     }
 }
 

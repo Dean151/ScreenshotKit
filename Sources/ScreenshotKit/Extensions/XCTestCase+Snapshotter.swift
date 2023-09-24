@@ -12,7 +12,28 @@ import SnapshotTesting
 
 extension XCTestCase {
     public func generateScreenshots<Value: SwiftUI.View>(
-        for value: @autoclosure () throws -> Value,
+        for value: Value,
+        named name: String,
+        type: ScreenshotType,
+        colorScheme: ScreenshotColorSchemes = .light,
+        prefix: String,
+        timeout: TimeInterval = 5,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        generateScreenshots(
+            for: { value },
+            named: name,
+            type: type, 
+            prefix: prefix,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+    }
+
+    public func generateScreenshots<Value: SwiftUI.View>(
+        @SwiftUI.ViewBuilder for value: () throws -> Value,
         named name: String,
         type: ScreenshotType,
         colorScheme: ScreenshotColorSchemes = .light,
