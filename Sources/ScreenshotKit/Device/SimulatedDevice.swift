@@ -168,13 +168,13 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
     var iMessageHeight: Double {
         switch self {
         case .iPhone8:
-            return 201
+            return 216
         case .iPhone8Plus:
-            return 221
+            return 236
         case .iPhone14, .iPhone14Pro:
-            return 239
+            return 254
         case .iPhone14Plus, .iPhone14ProMax:
-            return 252
+            return 267
         default:
             fatalError("iPad is not (yet?) supported")
         }

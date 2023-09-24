@@ -7,6 +7,7 @@ import XCTest
 
 import ScreenshotKit
 
+@available(iOS 17, *)
 final class iMessageTests: XCTestCase {
     func testiMessageScreenshot() {
         let view = List {
@@ -34,7 +35,7 @@ final class iMessageTests: XCTestCase {
             for: view,
             named: "imessage",
             type: .device(.iPhone(orientations: .portrait)), 
-            colorScheme: .light,
+            colorScheme: .all,
             prefix: "tests"
         )
     }

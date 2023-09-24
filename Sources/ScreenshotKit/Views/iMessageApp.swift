@@ -26,6 +26,7 @@ public enum iMessageElement: Hashable, Equatable {
     case sentMessage(String)
 }
 
+@available(iOS 17, *)
 struct iMessageAppModifier: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
@@ -46,18 +47,21 @@ struct iMessageAppModifier: ViewModifier {
                 Rectangle()
                     .fill(.linearGradient(colors: [
                         (colorScheme == .dark ? .black : .white),
-                        .primary.opacity(0.05)
+                        .primary.opacity(0.03)
                     ], startPoint: .top, endPoint: .bottom))
                     .frame(height: 5)
 
-                Capsule()
-                    .fill(.foreground.opacity(0.4))
-                    .frame(width: 36, height: 5)
-                    .padding(.vertical, 5)
+                ZStack(alignment: .top) {
+                    content
+                        .safeAreaPadding(.top, 15)
+                        .ignoresSafeArea(edges: .bottom)
 
-                content
-                    .frame(height: device?.iMessageHeight ?? 200)
-                    .ignoresSafeArea(edges: .bottom)
+                    Capsule()
+                        .fill(.foreground.opacity(0.4))
+                        .frame(width: 36, height: 5)
+                        .padding(.vertical, 5)
+                }
+                .frame(height: device?.iMessageHeight ?? 200)
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
@@ -205,7 +209,7 @@ struct MessageScrollView: View {
     }
 }
 
-struct MessageView: View {
+public struct MessageView: View {
     enum Style {
         case received, sent
 
@@ -218,32 +222,41 @@ struct MessageView: View {
             }
         }
 
-        var background: Color {
+        func background(colorScheme: ColorScheme) -> Color {
             switch self {
             case .received:
-                return .init(red: 233/255, green: 232/255, blue: 234/255)
+                switch colorScheme {
+                case .dark:
+                    return .init(red: 38/255, green: 37/255, blue: 41/255)
+                default:
+                    return .init(red: 233/255, green: 232/255, blue: 234/255)
+                }
             case .sent:
                 return .blue
             }
         }
     }
     
+    @Environment(\.colorScheme)
+    private var colorScheme
+
     let content: String
     let style: Style
 
-    var body: some View {
+    public var body: some View {
         Text(content)
             .foregroundStyle(style.foreground)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(style.background)
+                    .fill(style.background(colorScheme: colorScheme))
             )
     }
 }
 
 extension View {
+    @available(iOS 17, *)
     public func iMessageApp(recipient: iMessageRecipient, content: [iMessageElement]) -> some View {
         modifier(iMessageAppModifier(recipient: recipient, content: content))
     }
