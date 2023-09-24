@@ -29,7 +29,7 @@ final class iMessageTests: XCTestCase {
                 .sentMessage("Here they are:"),
                 .indicator("Read at 12:31 PM"),
             ],
-            scroll: .bottom
+            scroll: .top
         )
 
         generateScreenshots(

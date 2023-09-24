@@ -54,6 +54,7 @@ struct iMessageAppModifier: ViewModifier {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 MessageScrollView(content: conversation, scroll: scroll)
+                    .safeAreaPadding(.top, 75)
 
                 MessageComposer()
 
