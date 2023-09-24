@@ -15,7 +15,7 @@ final class iMessageTests: XCTestCase {
         }
         .iMessageApp(
             recipient: .init(name: "Cécile", picture: .initials("CE")),
-            content: [
+            conversation: [
                 .date("Yesterday, 12:26 PM"),
                 .receivedMessage("Hey, can you send me the codes?"),
                 .sentMessage("Sure, right away!"),
@@ -28,7 +28,8 @@ final class iMessageTests: XCTestCase {
                 .sentMessage("Sure, right away!"),
                 .sentMessage("Here they are:"),
                 .indicator("Read at 12:31 PM"),
-            ]
+            ],
+            scroll: .bottom
         )
 
         generateScreenshots(

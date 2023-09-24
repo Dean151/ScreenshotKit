@@ -26,6 +26,18 @@ public enum iMessageElement: Hashable, Equatable {
     case sentMessage(String)
 }
 
+public enum iMessageScroll {
+    case top
+    case bottom
+}
+
+extension View {
+    @available(iOS 17, *)
+    public func iMessageApp(recipient: iMessageRecipient, conversation: [iMessageElement], scroll: iMessageScroll) -> some View {
+        modifier(iMessageAppModifier(recipient: recipient, conversation: conversation, scroll: scroll))
+    }
+}
+
 @available(iOS 17, *)
 struct iMessageAppModifier: ViewModifier {
     @Environment(\.colorScheme)
@@ -35,12 +47,13 @@ struct iMessageAppModifier: ViewModifier {
     private var device
 
     let recipient: iMessageRecipient
-    let content: [iMessageElement]
+    let conversation: [iMessageElement]
+    let scroll: iMessageScroll
 
     func body(content: Content) -> some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
-                MessageScrollView(content: self.content)
+                MessageScrollView(content: conversation, scroll: scroll)
 
                 MessageComposer()
 
@@ -170,13 +183,15 @@ struct MessageComposer: View {
 }
 
 struct MessageScrollView: View {
+
     let content: [iMessageElement]
+    let scroll: iMessageScroll
 
     var body: some View {
         VStack(spacing: 0) {
             GeometryReader { proxy in
                 ScrollView {
-                    ForEach(content.reversed(), id: \.self) { element in
+                    ForEach(scroll == .bottom ? content.reversed() : content, id: \.self) { element in
                         Group {
                             switch element {
                             case .date(let date):
@@ -211,10 +226,10 @@ struct MessageScrollView: View {
                                 }
                             }
                         }
-                        .scaleEffect(x: 1, y: -1)
+                        .scaleEffect(x: 1, y: scroll == .bottom ? -1 : 1)
                     }
                 }
-                .scaleEffect(x: 1, y: -1)
+                .scaleEffect(x: 1, y: scroll == .bottom ? -1 : 1)
             }
             .padding(.horizontal, 16)
         }
@@ -269,12 +284,5 @@ public struct MessageView: View {
     public init(content: String, style: Style) {
         self.content = content
         self.style = style
-    }
-}
-
-extension View {
-    @available(iOS 17, *)
-    public func iMessageApp(recipient: iMessageRecipient, content: [iMessageElement]) -> some View {
-        modifier(iMessageAppModifier(recipient: recipient, content: content))
     }
 }
