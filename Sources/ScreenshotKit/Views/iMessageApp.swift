@@ -222,7 +222,7 @@ struct MessageScrollView: View {
 }
 
 public struct MessageView: View {
-    enum Style {
+    public enum Style {
         case received, sent
 
         var foreground: Color {
@@ -264,6 +264,11 @@ public struct MessageView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(style.background(colorScheme: colorScheme))
             )
+    }
+
+    public init(content: String, style: Style) {
+        self.content = content
+        self.style = style
     }
 }
 
