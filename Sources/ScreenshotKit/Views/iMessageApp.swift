@@ -97,7 +97,7 @@ struct MessageNavigationBar: View {
                 .padding(.bottom, 4)
         }
         .frame(height: 75)
-        .background(.regularMaterial, ignoresSafeAreaEdges: .all)
+        .background(.thinMaterial, ignoresSafeAreaEdges: .all)
     }
 }
 
