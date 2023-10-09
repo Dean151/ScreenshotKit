@@ -25,6 +25,7 @@ extension XCTestCase {
             for: { value },
             named: name,
             type: type, 
+            colorScheme: colorScheme,
             prefix: prefix,
             timeout: timeout,
             file: file,
