@@ -33,7 +33,7 @@ struct StatusBar {
 
 public enum StatusBarColorScheme {
     case inherit, light, dark
-    // TODO: support iOS 17 splitted status bar style
+    #warning("TODO: support iOS 17 splitted status bar style")
 
     var colorScheme: ColorScheme? {
         switch self {

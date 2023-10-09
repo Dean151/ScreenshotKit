@@ -166,6 +166,7 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
     }
 
     var iMessageHeight: Double {
+        #warning("FIXME: What about landscape?")
         switch self {
         case .iPhone8:
             return 216
@@ -175,6 +176,21 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
             return 254
         case .iPhone14Plus, .iPhone14ProMax:
             return 267
+        default:
+            fatalError("iPad is not (yet?) supported")
+        }
+    }
+
+    var keyboardHeight: Double {
+        switch self {
+        case .iPhone8(let orientation):
+            return orientation == .landscape ? 198 : 260
+        case .iPhone8Plus(let orientation):
+            return orientation == .landscape ? 198 : 271
+        case .iPhone14(let orientation), .iPhone14Pro(let orientation):
+            return orientation == .landscape ? 198 : 302
+        case .iPhone14Plus(let orientation), .iPhone14ProMax(let orientation):
+            return orientation == .landscape ? 198 : 312
         default:
             fatalError("iPad is not (yet?) supported")
         }
