@@ -24,6 +24,42 @@ public enum iMessageElement: Hashable, Equatable {
     case indicator(String)
     case receivedMessage(String)
     case sentMessage(String)
+
+    var isMessage: Bool {
+        switch self {
+        case .receivedMessage, .sentMessage:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var content: String {
+        switch self {
+        case .date(let string), .indicator(let string), .receivedMessage(let string), .sentMessage(let string):
+            return string
+        }
+    }
+}
+
+extension Array where Element == iMessageElement {
+    var lastMessage: String? {
+        return last { $0.isMessage }?.content
+    }
+}
+
+public struct iMessageHistory: Identifiable {
+    public let id: UUID
+    public let recipient: iMessageRecipient
+    public let date: String
+    public let message: String
+
+    public init(recipient: iMessageRecipient, date: String, message: String) {
+        self.id = UUID()
+        self.recipient = recipient
+        self.date = date
+        self.message = message
+    }
 }
 
 public enum iMessageScroll {
@@ -33,8 +69,9 @@ public enum iMessageScroll {
 
 extension View {
     @available(iOS 17, *)
-    public func iMessageApp(recipient: iMessageRecipient, conversation: [iMessageElement], scroll: iMessageScroll = .bottom) -> some View {
-        modifier(iMessageAppModifier(recipient: recipient, conversation: conversation, scroll: scroll))
+    public func iMessageApp(recipient: iMessageRecipient, conversation: [iMessageElement], conversations: [iMessageHistory] = [], scroll: iMessageScroll = .bottom) -> some View {
+        let conversations = conversations.isEmpty ? [.init(recipient: recipient, date: DateFormatter.shortTime.string(from: .nineFortyOne), message: conversation.lastMessage ?? "")] : conversations
+        return modifier(iMessageAppModifier(recipient: recipient, conversation: conversation, conversations: conversations, scroll: scroll))
     }
 }
 
@@ -42,62 +79,155 @@ extension View {
 struct iMessageAppModifier: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
-
     @Environment(\.device)
     private var device
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
 
     let recipient: iMessageRecipient
     let conversation: [iMessageElement]
+    let conversations: [iMessageHistory]
     let scroll: iMessageScroll
 
+    var composerWidth: Double {
+        guard let device, let screenSize = device.config.size else {
+            return 0
+        }
+        return ((screenSize.width - device.iMessageSize.width) / 2) - device.iMessageOffset
+    }
+
     func body(content: Content) -> some View {
-        ZStack(alignment: .top) {
-            VStack(spacing: 0) {
-                MessageScrollView(content: conversation, scroll: scroll)
-                    .safeAreaPadding(.top, 75)
-
-                MessageComposer()
-
-                Rectangle()
-                    .fill(.linearGradient(colors: [
-                        (colorScheme == .dark ? .black : .white),
-                        .primary.opacity(0.03)
-                    ], startPoint: .top, endPoint: .bottom))
-                    .frame(height: 5)
-
+        ZStack(alignment: .bottom) {
+            NavigationSplitView(columnVisibility: .constant(.all), preferredCompactColumn: .constant(.detail)) {
+                #warning("FIXME: sidebar should be 375 on landscape, but it doesn't work :(")
+                MessageSideBar(conversations: conversations)
+            } detail: {
                 ZStack(alignment: .top) {
-                    content
-                        .safeAreaPadding(.top, 15)
-                        .ignoresSafeArea(edges: .bottom)
+                    VStack(spacing: 0) {
+                        MessageScrollView(content: conversation, scroll: scroll)
+                            .safeAreaPadding(.top, 75)
 
-                    Capsule()
-                        .fill(.foreground.opacity(0.4))
-                        .frame(width: 36, height: 5)
-                        .padding(.vertical, 5)
+                        if horizontalSizeClass == .regular {
+                            HStack {
+                                Spacer()
+                                MessageComposer()
+                                    .frame(width: composerWidth)
+                            }
+                        } else {
+                            MessageComposer()
+                        }
+
+                        Rectangle()
+                            .fill(.linearGradient(colors: [
+                                (colorScheme == .dark ? .black : .white),
+                                .primary.opacity(0.03)
+                            ], startPoint: .top, endPoint: .bottom))
+                            .frame(height: 5)
+
+                        if horizontalSizeClass == .compact {
+                            ZStack(alignment: .top) {
+                                content
+                                    .safeAreaPadding(.top, 15)
+                                    .ignoresSafeArea(edges: .bottom)
+
+                                Capsule()
+                                    .fill(.foreground.opacity(0.4))
+                                    .frame(width: 36, height: 5)
+                                    .padding(.vertical, 5)
+                            }
+                            .frame(height: device?.iMessageSize.height ?? 200)
+                        }
+                    }
+
+                    MessageNavigationBar(recipient: recipient)
                 }
-                .frame(height: device?.iMessageHeight ?? 200)
+                .toolbar(.hidden, for: .navigationBar)
             }
+            .navigationSplitViewStyle(.balanced)
 
-            MessageNavigationBar(recipient: recipient)
+            if horizontalSizeClass == .regular {
+                Rectangle()
+                    .fill(Color.black.opacity(0.1))
+                    .ignoresSafeArea()
+
+                content
+                    .frame(width: device?.iMessageSize.width ?? 0, height: device?.iMessageSize.height ?? 0)
+                    .clipShape(RoundedRectangle(cornerRadius: 32))
+                    .padding(.bottom)
+                    .offset(x: device?.iMessageOffset ?? 0)
+            }
         }
         .tint(.blue)
         .withSystemDecoration()
     }
 }
 
+struct MessageSideBar: View {
+    let selected: UUID?
+    let conversations: [iMessageHistory]
+
+    var body: some View {
+        List(conversations, selection: .constant(selected)) { conversation in
+            MessageSideBarRow(content: conversation)
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Messages")
+        .navigationBarTitleDisplayMode(.large)
+    }
+
+    init(conversations: [iMessageHistory]) {
+        self.selected = conversations.first?.id
+        self.conversations = conversations
+    }
+}
+
+struct MessageSideBarRow: View {
+    let content: iMessageHistory
+
+    var body: some View {
+        HStack {
+            MessageAvatar(picture: content.recipient.picture)
+                .frame(width: 45, height: 45)
+
+            VStack {
+                HStack {
+                    Text(content.recipient.name)
+                        .font(.title3.bold())
+                    Spacer(minLength: 0)
+                    Text(content.date)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+                HStack(spacing: 0) {
+                    Text(content.message)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2, reservesSpace: true)
+
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        .padding(.leading, 4)
+    }
+}
+
 struct MessageNavigationBar: View {
     @Environment(\.device)
     private var device
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
 
     let recipient: iMessageRecipient
 
     var body: some View {
         ZStack {
             HStack {
-                Image(systemName: "chevron.backward")
-                    .imageScale(.large)
-                    .font(.system(.title3,  design: .rounded, weight: .semibold))
-                    .foregroundStyle(.blue)
+                if horizontalSizeClass == .compact {
+                    Image(systemName: "chevron.backward")
+                        .imageScale(.large)
+                        .font(.system(.title3,  design: .rounded, weight: .semibold))
+                        .foregroundStyle(.blue)
+                }
                 Spacer()
                 Image(systemName: "video")
                     .font(.system(size: 20))
@@ -120,27 +250,8 @@ struct MessageHeader: View {
 
     var body: some View {
         VStack(spacing: 5) {
-            Group {
-                switch recipient.picture {
-                case .initials(let string):
-                    Circle()
-                        .fill(LinearGradient(colors: [
-                            .init(red: 166/255, green: 172/255, blue: 185/255),
-                            .init(red: 133/255, green: 138/255, blue: 147/255)
-                        ], startPoint: .top, endPoint: .bottom))
-                        .overlay {
-                            Text(string)
-                                .font(.system(size: 22, weight: .medium, design: .rounded))
-                                .foregroundStyle(.white)
-                        }
-                case .picture(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                        .mask(Circle())
-                }
-            }
-            .frame(width: 50, height: 50)
+            MessageAvatar(picture: recipient.picture)
+                .frame(width: 50, height: 50)
 
             HStack(spacing: 1) {
                 Text(recipient.name)
@@ -153,18 +264,47 @@ struct MessageHeader: View {
     }
 }
 
+struct MessageAvatar: View {
+    let picture: iMessageRecipient.Picture
+
+    var body: some View {
+        switch picture {
+        case .initials(let string):
+            Circle()
+                .fill(LinearGradient(colors: [
+                    .init(red: 166/255, green: 172/255, blue: 185/255),
+                    .init(red: 133/255, green: 138/255, blue: 147/255)
+                ], startPoint: .top, endPoint: .bottom))
+                .overlay {
+                    Text(string)
+                        .font(.system(size: 22, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white)
+                }
+        case .picture(let image):
+            image
+                .resizable()
+                .aspectRatio(1, contentMode: .fill)
+                .mask(Circle())
+        }
+    }
+}
+
 @available(iOS 17, *)
 struct MessageComposer: View {
     @Environment(\.colorScheme)
     private var colorScheme
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "plus")
-                .font(.headline.weight(.regular))
-                .foregroundStyle(.foreground.opacity(0.6))
-                .padding(9.5)
-                .background(Circle().fill(.gray.opacity(0.2)))
+            if horizontalSizeClass != .regular {
+                Image(systemName: "plus")
+                    .font(.headline.weight(.regular))
+                    .foregroundStyle(.foreground.opacity(0.6))
+                    .padding(9.5)
+                    .background(Circle().fill(.gray.opacity(0.2)))
+            }
 
             HStack {
                 Text("iMessage")

@@ -171,7 +171,7 @@ struct SimulatediPadStatusBar: View {
     }
 }
 
-private extension Date {
+extension Date {
     static var nineFortyOne: Date {
         var components = DateComponents(calendar: .current, timeZone: .current)
         components.year = 2007
@@ -183,7 +183,7 @@ private extension Date {
     }
 }
 
-private extension DateFormatter {
+extension DateFormatter {
     static var date: DateFormatter {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("E MMM d")

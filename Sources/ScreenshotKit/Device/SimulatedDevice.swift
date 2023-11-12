@@ -104,6 +104,29 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
         }
     }
 
+    var orientation: SimulatedDeviceOrientation {
+        switch self {
+        case .iPhone8(let orientation):
+            return orientation
+        case .iPhone8Plus(let orientation):
+            return orientation
+        case .iPhone14(let orientation):
+            return orientation
+        case .iPhone14Plus(let orientation):
+            return orientation
+        case .iPhone14Pro(let orientation):
+            return orientation
+        case .iPhone14ProMax(let orientation):
+            return orientation
+        case .iPadPro12_9HomeButton(let orientation):
+            return orientation
+        case .iPadPro12_9(let orientation):
+            return orientation
+        case .iPadPro11(let orientation):
+            return orientation
+        }
+    }
+
     var scale: Double {
         switch self {
         case .iPhone8, .iPadPro12_9HomeButton, .iPadPro12_9, .iPadPro11:
@@ -165,19 +188,52 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
         }
     }
 
-    var iMessageHeight: Double {
-        #warning("FIXME: What about landscape?")
+    var iMessageSize: CGSize {
+        #warning("FIXME: What about iPhone landscape?")
         switch self {
         case .iPhone8:
-            return 216
+            return .init(width: 0, height: 216)
         case .iPhone8Plus:
-            return 236
+            return .init(width: 0, height: 236)
         case .iPhone14, .iPhone14Pro:
-            return 254
+            return .init(width: 0, height: 254)
         case .iPhone14Plus, .iPhone14ProMax:
-            return 267
-        default:
-            fatalError("iPad is not (yet?) supported")
+            return .init(width: 0, height: 267)
+        case .iPadPro11(let orientation):
+            switch orientation {
+            case .portrait:
+                return .init(width: 393, height: 690)
+            case .landscape:
+                return .init(width: 393, height: 696)
+            }
+        case .iPadPro12_9(let orientation), .iPadPro12_9HomeButton(let orientation):
+            switch orientation {
+            case .portrait:
+                return .init(width: 393, height: 716)
+            case .landscape:
+                return .init(width: 393, height: 710)
+            }
+        }
+    }
+
+    var iMessageOffset: Double {
+        switch self {
+        case .iPhone8, .iPhone8Plus, .iPhone14, .iPhone14Plus, .iPhone14Pro, .iPhone14ProMax:
+            return 0
+        case .iPadPro11(let orientation):
+            switch orientation {
+            case .portrait:
+                return -30
+            case .landscape:
+                return -51
+            }
+        case .iPadPro12_9HomeButton(let orientation), .iPadPro12_9(let orientation):
+            switch orientation {
+            case .portrait:
+                return -22
+            case .landscape:
+                return -136
+            }
         }
     }
 
