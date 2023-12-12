@@ -156,6 +156,7 @@ struct iMessageAppModifier: ViewModifier {
                     .clipShape(RoundedRectangle(cornerRadius: 32))
                     .padding(.bottom)
                     .offset(x: device?.iMessageOffset ?? 0)
+                    .environment(\.horizontalSizeClass, .compact)
             }
         }
         .tint(.blue)
