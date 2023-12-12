@@ -151,6 +151,7 @@ struct iMessageAppModifier: ViewModifier {
                     .ignoresSafeArea()
 
                 content
+                    .safeAreaPadding(.top, 32)
                     .background(.background)
                     .frame(width: device?.iMessageSize.width ?? 0, height: device?.iMessageSize.height ?? 0)
                     .clipShape(RoundedRectangle(cornerRadius: 32))
