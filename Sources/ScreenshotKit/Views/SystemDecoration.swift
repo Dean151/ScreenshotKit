@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 17, *)
 public struct WithSystemDecorationModifier: ViewModifier {
     @Environment(\.device)
     private var device
@@ -15,7 +16,10 @@ public struct WithSystemDecorationModifier: ViewModifier {
     let statusBarColorScheme: StatusBarColorScheme
 
     public func body(content: Content) -> some View {
-        content.overlay {
+        content
+            .safeAreaPadding(.top, device?.config.safeArea.top ?? 0)
+            .safeAreaPadding(.bottom, device?.config.safeArea.bottom ?? 0)
+            .overlay {
             if let device {
                 // Status Bar
                 VStack {
@@ -37,6 +41,7 @@ public struct WithSystemDecorationModifier: ViewModifier {
     }
 }
 
+@available(iOS 17, *)
 extension View {
     public func withSystemDecoration(
         homeIndicator: HomeIndicatorColorScheme = .inherit,

@@ -4,12 +4,14 @@
 
 import SwiftUI
 
+@available(iOS 17, *)
 extension View {
     public func keyboardExtension<Toolbar: View, App: View>(height: ((CGSize) -> Double)? = nil, @ViewBuilder keyboardToolbar: () -> Toolbar = { EmptyView() }, @ViewBuilder foregroundApp: () -> App) -> some View {
         modifier(KeyboardExtensionModifier(height: height, keyboardToolbar: keyboardToolbar(), foregroundApp: foregroundApp()))
     }
 }
 
+@available(iOS 17, *)
 struct KeyboardExtensionModifier<Toolbar: View, App: View>: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
