@@ -15,9 +15,10 @@ extension View {
 struct KeyboardExtensionModifier<Toolbar: View, App: View>: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
-
     @Environment(\.device)
     private var device
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
 
     let height: ((CGSize) -> Double)?
     let keyboardToolbar: Toolbar
@@ -34,10 +35,23 @@ struct KeyboardExtensionModifier<Toolbar: View, App: View>: ViewModifier {
                         VStack(spacing: 0) {
                             keyboardToolbar
 
+                            if horizontalSizeClass == .regular {
+                                HStack(spacing: 19) {
+                                    Image(systemName: "arrow.uturn.backward").imageScale(.large)
+                                    Image(systemName: "arrow.uturn.forward").imageScale(.large).opacity(0.5)
+                                    Image(systemName: "doc.on.clipboard").font(.title3)
+                                    Spacer()
+                                }
+
+                                .padding(.horizontal, 22)
+                                .frame(height: 55)
+                            }
+
                             content
                                 .frame(height: height?(proxy.size) ?? device?.keyboardHeight ?? 302)
+                                .padding(.bottom, horizontalSizeClass == .regular ? device?.config.safeArea.bottom ?? 0 : 0)
 
-                            if let safeArea = device?.config.safeArea.bottom, safeArea > 0 {
+                            if horizontalSizeClass == .compact, let safeArea = device?.config.safeArea.bottom, safeArea > 0 {
                                 HStack(alignment: .center) {
                                     Image(systemName: "globe")
                                     Spacer()

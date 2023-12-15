@@ -247,8 +247,12 @@ enum SimulatedDevice: Hashable, CustomStringConvertible {
             return orientation == .landscape ? 198 : 302
         case .iPhone14Plus(let orientation), .iPhone14ProMax(let orientation):
             return orientation == .landscape ? 198 : 312
-        default:
-            fatalError("iPad is not (yet?) supported")
+        case .iPadPro11(let orientation):
+            precondition(orientation == .landscape, "iPad portrait keyboard height to be defined")
+            return 353
+        case .iPadPro12_9(let orientation), .iPadPro12_9HomeButton(let orientation):
+            precondition(orientation == .landscape, "iPad portrait keyboard height to be defined")
+            return 423
         }
     }
 

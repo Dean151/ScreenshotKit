@@ -7,6 +7,7 @@ import XCTest
 
 import ScreenshotKit
 
+@available(iOS 17, *)
 final class KeyboardTests: XCTestCase {
     func testKeyboardScreenshots() {
         generateScreenshots(
@@ -24,7 +25,7 @@ final class KeyboardTests: XCTestCase {
                 })
             },
             named: "keyboard",
-            type: .device(.iPhone(orientations: .portrait)),
+            type: .devices([.iPhone(orientations: .portrait), .iPad(orientations: .landscape)]),
             colorScheme: .all,
             prefix: "tests"
         )

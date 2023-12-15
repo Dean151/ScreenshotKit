@@ -7,6 +7,7 @@ import XCTest
 
 import ScreenshotKit
 
+@available(iOS 17, *)
 final class ScreenshotterTests: XCTestCase {
     func testScreens() {
         let view = NavigationStack {
