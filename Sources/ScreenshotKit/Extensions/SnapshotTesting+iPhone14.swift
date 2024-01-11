@@ -2,8 +2,8 @@
 //  SnapshotTesting+iPhone14.swift
 //
 
+#if os(iOS)
 import UIKit
-
 import SnapshotTesting
 
 extension ViewImageConfig {
@@ -183,3 +183,5 @@ extension UITraitCollection {
       }
     }
 }
+
+#endif

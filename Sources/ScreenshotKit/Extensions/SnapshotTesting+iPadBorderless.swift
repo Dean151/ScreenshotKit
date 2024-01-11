@@ -2,8 +2,8 @@
 //  SnapshotTesting+iPadBorderless.swift
 //
 
+#if os(iOS)
 import UIKit
-
 import SnapshotTesting
 
 extension ViewImageConfig {
@@ -54,3 +54,5 @@ extension ViewImageConfig {
       return .init(safeArea: .init(top: 24, left: 0, bottom: 20, right: 0), size: size, traits: traits)
     }
 }
+
+#endif

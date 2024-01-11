@@ -7,10 +7,12 @@ public enum ScreenshotType {
     case sizeThatFits
     /// Fix the result screenshot size at the specified size
     case fixed(width: Double, height: Double)
+    #if os(iOS)
     /// Match the specified device
     case device(_ device: SimulatedDeviceType)
     /// Match all specified devices
     case devices(_ devices: [SimulatedDeviceType])
+    #endif
 }
 
 public struct ScreenshotColorSchemes: OptionSet {
@@ -25,13 +27,16 @@ public struct ScreenshotColorSchemes: OptionSet {
     }
 }
 
+#if os(iOS)
 public enum SimulatedDeviceType {
     /// Generate for all iPhones sizes
     case iPhone(orientations: SimulatedDeviceOrientations)
     /// Generate for all iPad sizes
     case iPad(orientations: SimulatedDeviceOrientations)
 }
+#endif
 
+#if os(iOS)
 public struct SimulatedDeviceOrientations: OptionSet {
     public let rawValue: UInt
 
@@ -43,3 +48,4 @@ public struct SimulatedDeviceOrientations: OptionSet {
         self.rawValue = rawValue
     }
 }
+#endif

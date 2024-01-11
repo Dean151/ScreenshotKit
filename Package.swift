@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "ScreenshotKit",
-    platforms: [.iOS(.v16)],
+    platforms: [.iOS(.v16), .macOS(.v13)],
     products: [
         .library(name: "ScreenshotKit", targets: ["ScreenshotKit"]),
     ],

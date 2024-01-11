@@ -2,6 +2,8 @@
 //  KeyboardTests.swift
 //
 
+#if os(iOS)
+
 import SwiftUI
 import XCTest
 
@@ -31,3 +33,5 @@ final class KeyboardTests: XCTestCase {
         )
     }
 }
+
+#endif

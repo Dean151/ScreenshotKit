@@ -2,6 +2,8 @@
 //  iMessageTests.swift
 //
 
+#if os(iOS)
+
 import SwiftUI
 import XCTest
 
@@ -123,3 +125,5 @@ final class iMessageTests: XCTestCase {
         )
     }
 }
+
+#endif

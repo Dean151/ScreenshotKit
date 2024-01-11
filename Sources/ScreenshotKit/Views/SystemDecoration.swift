@@ -5,6 +5,8 @@
 //  Copyright © 2023 Illumineering. All rights reserved.
 //
 
+#if os(iOS)
+
 import SwiftUI
 
 @available(iOS 17, *)
@@ -53,3 +55,5 @@ extension View {
         ))
     }
 }
+
+#endif

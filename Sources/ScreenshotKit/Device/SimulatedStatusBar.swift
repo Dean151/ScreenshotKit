@@ -2,6 +2,8 @@
 //  SimulatedStatusBar.swift
 //
 
+#if os(iOS)
+
 import SwiftUI
 
 struct StatusBar {
@@ -204,3 +206,5 @@ extension DateFormatter {
         return formatter
     }
 }
+
+#endif

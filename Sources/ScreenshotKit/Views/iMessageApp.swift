@@ -2,6 +2,8 @@
 //  iMessageApp.swift
 //
 
+#if os(iOS)
+
 import SwiftUI
 
 public struct iMessageRecipient {
@@ -433,3 +435,5 @@ public struct MessageView: View {
         self.style = style
     }
 }
+
+#endif

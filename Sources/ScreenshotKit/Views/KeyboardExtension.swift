@@ -2,6 +2,8 @@
 //  KeyboardExtension.swift
 //
 
+#if os(iOS)
+
 import SwiftUI
 
 @available(iOS 17, *)
@@ -73,3 +75,5 @@ struct KeyboardExtensionModifier<Toolbar: View, App: View>: ViewModifier {
         }
     }
 }
+
+#endif

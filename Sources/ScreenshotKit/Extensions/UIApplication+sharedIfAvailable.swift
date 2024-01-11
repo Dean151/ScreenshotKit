@@ -2,6 +2,7 @@
 //  UIApplication+sharedIfAvailable.swift
 //
 
+#if canImport(UIKit)
 import UIKit
 
 extension UIApplication {
@@ -15,3 +16,4 @@ extension UIApplication {
       return (shared?.takeUnretainedValue() as? UIApplication?).unsafelyUnwrapped
   }
 }
+#endif

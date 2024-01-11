@@ -3,8 +3,11 @@
 //
 
 import SwiftUI
-import UIKit
 import XCTest
+
+#if canImport(UIKit)
+import UIKit
+#endif
 
 import SnapshotTesting
 
@@ -44,6 +47,7 @@ extension XCTestCase {
         line: UInt = #line
     ) rethrows {
         XCTExpectFailure()
+        #if os(iOS)
         let keyWindow = UIApplication.sharedIfAvailable?.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.windows.first { $0.isKeyWindow } }).first
         try type.each { layout, device in
             for colorScheme in colorScheme.each {
@@ -77,5 +81,7 @@ extension XCTestCase {
                 )
             }
         }
+        #endif
+        // FIXME: macOS not yet supported
     }
 }

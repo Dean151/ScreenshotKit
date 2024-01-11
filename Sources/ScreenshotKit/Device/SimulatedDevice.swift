@@ -6,6 +6,7 @@ import SwiftUI
 
 import SnapshotTesting
 
+#if os(iOS)
 enum SimulatedDeviceOrientation {
     case portrait, landscape
 
@@ -18,11 +19,13 @@ enum SimulatedDeviceOrientation {
         }
     }
 }
+#endif
 
 enum ScreenshotColorScheme: String, CaseIterable {
     case light
     case dark
 
+    #if canImport(UIKit)
     var userInterfaceStyle: UIUserInterfaceStyle {
         switch self {
         case .light:
@@ -31,8 +34,10 @@ enum ScreenshotColorScheme: String, CaseIterable {
             return .dark
         }
     }
+    #endif
 }
 
+#if os(iOS)
 struct SimulatedDeviceEnvironmentKey: EnvironmentKey {
     static let defaultValue: SimulatedDevice? = .init()
 }
@@ -301,10 +306,12 @@ extension SimulatedDevice: CaseIterable {
         }
     }
 }
+#endif
 
 // MARK: Enumerators
 
 extension ScreenshotType {
+    #if os(iOS)
     func each(_ callback: (SwiftUISnapshotLayout, SimulatedDevice) throws -> Void) rethrows {
         switch self {
         case .sizeThatFits:
@@ -321,8 +328,21 @@ extension ScreenshotType {
             }
         }
     }
+    #endif
+
+    #if os(macOS)
+    func each(_ callback: (SwiftUISnapshotLayout) throws -> Void) rethrows {
+        switch self {
+        case .sizeThatFits:
+            try callback(.sizeThatFits)
+        case .fixed(let width, let height):
+            try callback(.fixed(width: width, height: height))
+        }
+    }
+    #endif
 }
 
+#if os(iOS)
 extension SimulatedDeviceOrientations {
     var each: [SimulatedDeviceOrientation] {
         var orientations: [SimulatedDeviceOrientation] = []
@@ -335,6 +355,7 @@ extension SimulatedDeviceOrientations {
         return orientations
     }
 }
+#endif
 
 extension ScreenshotColorSchemes {
     var each: [ScreenshotColorScheme] {

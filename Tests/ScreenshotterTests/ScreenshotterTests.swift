@@ -9,6 +9,7 @@ import ScreenshotKit
 
 @available(iOS 17, *)
 final class ScreenshotterTests: XCTestCase {
+    #if os(iOS)
     func testScreens() {
         let view = NavigationStack {
             List {
@@ -25,6 +26,7 @@ final class ScreenshotterTests: XCTestCase {
             .iPad(orientations: .all)
         ]), prefix: "tests")
     }
+    #endif
 
     func testFixedSize() {
         let view = Button(action: {}, label: {
