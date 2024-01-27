@@ -2,8 +2,6 @@
 
 import PackageDescription
 
-let settings: [SwiftSetting] = [.strictConcurrency, .warnLongExpressionTypeChecking]
-
 let package = Package(
     name: "ScreenshotKit",
     platforms: [.iOS(.v16), .macOS(.v13)],
@@ -16,18 +14,11 @@ let package = Package(
     targets: [
         .target(name: "ScreenshotKit", dependencies: [
             .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-        ], swiftSettings: settings),
+        ], swiftSettings: [.strictConcurrency]),
         .testTarget(name: "ScreenshotKitTests", dependencies: ["ScreenshotKit"]),
     ]
 )
 
 extension SwiftSetting {
     static let strictConcurrency = enableUpcomingFeature("StrictConcurrency")
-    static let warnLongExpressionTypeChecking = unsafeFlags(
-        [
-            "-Xfrontend", "-warn-long-expression-type-checking=100",
-            "-Xfrontend", "-warn-long-function-bodies=100",
-        ],
-        .when(configuration: .debug)
-    )
 }
