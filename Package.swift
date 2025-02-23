@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "ScreenshotKit", targets: ["ScreenshotKit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.18.1"),
     ],
     targets: [
         .target(name: "ScreenshotKit", dependencies: [
